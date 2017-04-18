@@ -23,6 +23,8 @@ imageSelect = types.ReplyKeyboardMarkup(one_time_keyboard=True)  #crea la tastie
 imageSelect.add('foto 1', 'foto 2')
 rebootselect = types.ReplyKeyboardMarkup(one_time_keyboard=True)
 rebootselect.add('si','no')
+fileselect = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+fileselect.add('main.py','start.sh','temperatura.sh','readme.md','esci')
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(21, GPIO.OUT) #inizializzo la gpio per il controllo manuale della ventola di raffreddamento
@@ -46,6 +48,56 @@ def shell(message):
         bot.send_message(message.chat.id, output)
    return
 
+
+@bot.message_handler(commands=['source'])
+def command_image(m):
+    cid = m.chat.id
+    bot.send_message(cid, "Scegli il file che ti serve", reply_markup=fileselect)  # show the keyboard
+    userStep[cid] = 3  #prepara l'utente per il prossimo passaggio 
+
+@bot.message_handler(func=lambda message: get_user_step(message.chat.id) == 3)
+def msg_image_select(m):
+    cid = m.chat.id
+    text = m.text
+    
+    if text == "main.py":
+        bot.send_chat_action(m.chat.id, 'upload_document')
+        time.sleep(3)
+        doc = open('/home/pi/Desktop/bot/main.py', 'rb')
+        bot.send_document(m.chat.id, doc)
+        bot.send_document(m.chat.id, "FILEID")
+        userStep[cid] = 0  # reimposta lo stato dell'utente
+    elif text == "start.sh":
+        bot.send_chat_action(m.chat.id, 'upload_document')
+        time.sleep(3)
+        doc = open('/home/pi/Desktop/bot/start.sh', 'rb')
+        bot.send_document(m.chat.id, doc)
+        bot.send_document(m.chat.id, "FILEID")
+        userStep[cid] = 0
+    elif text == "readme.md":
+        bot.send_chat_action(m.chat.id, 'upload_document')
+        time.sleep(3)
+        doc = open('/home/pi/Desktop/bot/readme.md', 'rb')
+        bot.send_document(m.chat.id, doc)
+        bot.send_document(m.chat.id, "FILEID")
+        userStep[cid] = 0
+    elif text == "temperatura.sh":
+        bot.send_chat_action(m.chat.id, 'upload_document')
+        time.sleep(3)
+        doc = open('/home/pi/Desktop/bot/temperatura.sh', 'rb')
+        bot.send_document(m.chat.id, doc)
+        bot.send_document(m.chat.id, "FILEID")
+        userStep[cid] = 0
+    elif text == "esci":
+        bot.send_chat_action(m.chat.id, 'typing')
+        time.sleep(1)
+        bot.reply_to(m, "Ok c:", reply_markup=hideBoard)
+        userStep[cid] = 0
+        
+    else:
+        bot.send_message(cid, "USA LA TASTIERA CHE TI HO DATO!!")
+        bot.send_message(cid, "uff, riprova")
+        
 @bot.message_handler(commands=['temp'])
 def temp(message):
     command = "./temperatura.sh"
@@ -119,12 +171,15 @@ def command_image(m):
 def msg_image_select(m):
     cid = m.chat.id
     text = m.text
-    bot.send_chat_action(cid, 'typing')
-
+    
     if text == "foto 1":
+        bot.send_chat_action(cid, 'upload_photo')
+        time.sleep(3)
         bot.send_photo(cid, open('rooster.jpg', 'rb'),reply_markup=hideBoard) #invia il file e chiude la tastiera
         userStep[cid] = 0  # reimposta lo stato dell'utente
     elif text == "foto 2":
+        bot.send_chat_action(cid, 'upload_photo')
+        time.sleep(3)
         bot.send_photo(cid, open('kitten.jpg', 'rb'), reply_markup=hideBoard)
         userStep[cid] = 0
     else:
