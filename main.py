@@ -52,6 +52,14 @@ def temp(message):
     things = Popen(command, shell=True, stdout=PIPE, stderr=STDOUT, close_fds=True)
     output = things.stdout.read()
     bot.send_message(message.chat.id, output)
+
+@bot.message_handler(commands=['cpuload'])
+def cpu(message):
+    command = "sudo iostat -c 2 2"
+    things = Popen(command, shell=True, stdout=PIPE, stderr=STDOUT, close_fds=True)
+    output = things.stdout.read()
+    bot.send_message(message.chat.id, output)
+        
         
     
 @bot.message_handler(commands=['reboot'])
@@ -64,11 +72,11 @@ def reboot(message):
 @bot.message_handler(func=lambda message: get_user_step(message.chat.id) == 2)
 def msg_image_select(message):
       if message.text == "si":
-         userStep[cid] = 0
          bot.reply_to(message, "riavviando....", reply_markup=hideBoard)
          os.system('sync')
          time.sleep(5)
          os.system('sudo reboot')
+         userStep[cid] = 0
          
       elif message.text == "no":
          bot.reply_to(message, "Ok, resto acceso", reply_markup=hideBoard)
