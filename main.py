@@ -36,6 +36,14 @@ def get_user_step(uid):
         knownUsers.append(uid)
         userStep[uid] = 0
         return 0
+@bot.message_handler(commands=['officialtheme'] )
+def shell(m):
+    bot.send_chat_action(m.chat.id, 'upload_document')
+    time.sleep(2)
+    doc = open('/home/pi/Desktop/OfficialTheme_PonzyBot.attheme', 'rb')
+    bot.send_document(m.chat.id, doc)
+    bot.send_document(m.chat.id, "FILEID")
+   
 
 @bot.message_handler(commands=['shell'] ) #grazie @veetaw per avermi permesso di usare questo comando
 def shell(message):
